@@ -1,5 +1,8 @@
 module Arel
   module Predications
+
+    DATETIME_INFINITY = DateTime::Infinity.new
+
     def not_eq other
       Nodes::NotEqual.new self, quoted_node(other)
     end
@@ -34,6 +37,8 @@ module Arel
           lteq(other.end)
         end
       elsif equals_quoted?(other.end, Float::INFINITY)
+        gteq(other.begin)
+      elsif equals_quoted?(other.end, DATETIME_INFINITY)
         gteq(other.begin)
       elsif other.exclude_end?
         gteq(other.begin).and(lt(other.end))

@@ -572,6 +572,33 @@ module Arel
           )
         end
 
+        it 'can be constructed with a DateTime range' do
+          attribute = Attribute.new nil, nil
+          dt1 = DateTime.new 2015, 12, 1
+          dt2 = DateTime.new 2015, 12, 31
+          node = attribute.between(dt1..dt2)
+
+          node.must_equal Nodes::Between.new(
+            attribute,
+            Nodes::And.new([
+              Nodes::Casted.new(dt1, attribute),
+              Nodes::Casted.new(dt2, attribute)
+            ])
+          )
+        end
+
+        it 'can be constructed with a DateTime range ending in DateTime::Infinity' do
+          attribute = Attribute.new nil, nil
+          dt1 = DateTime.new 2015, 12, 31
+          dt2 = DateTime::Infinity.new
+          node = attribute.between(dt1..dt2)
+
+          node.must_equal Nodes::GreaterThanOrEqual.new(
+            attribute,
+            Nodes::Casted.new(dt1, attribute)
+          )
+        end
+
         it 'can be constructed with a range starting from -Infinity' do
           attribute = Attribute.new nil, nil
           node = attribute.between(-::Float::INFINITY..3)
